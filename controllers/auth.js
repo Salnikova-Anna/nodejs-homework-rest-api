@@ -70,9 +70,34 @@ const logout = async (req, res) => {
   res.status(204).json();
 };
 
+const updateSubscription = async (req, res) => {
+  if (!req.body.subscription) {
+    throw HttpError(400, "missing field subscription");
+  }
+
+  const { _id } = req.user;
+
+  const { email, subscription } = await User.findByIdAndUpdate(_id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+
+  if (!email || !subscription) {
+    throw HttpError(404, "Not found");
+  }
+
+  res.status(200).json({
+    status: "success",
+    message: "Subscription updated",
+    email,
+    subscription,
+  });
+};
+
 module.exports = {
   register: ctrlWrapper(register),
   login: ctrlWrapper(login),
   getCurrent: ctrlWrapper(getCurrent),
   logout: ctrlWrapper(logout),
+  updateSubscription: ctrlWrapper(updateSubscription),
 };
